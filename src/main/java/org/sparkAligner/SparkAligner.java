@@ -17,6 +17,12 @@ import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.broadcast.Broadcast;
+import org.fmIndex.CommonUtils;
+import org.fmIndex.IndexPointerWrapper;
+import org.fmIndex.IvalPointerWrapper;
+import org.fmIndex.ReadTWrapper;
+import org.fmIndex.UINT32PointerWrapper;
+import org.fmIndex.UINT8PointerWrapper;
 
 import scala.Serializable;
 import scala.Tuple2;
@@ -44,10 +50,37 @@ public class SparkAligner {
         		.set("spark.rdd.compress", "true");  
         //conf.set("spark.hadoop.io.compression.codecs", "org.sparkAligner.TmpGzipCodec");
         long startTime = System.currentTimeMillis();
-        JavaSparkContext context = new JavaSparkContext(conf);
-        JavaRDD<String> lines1 = context.textFile(args[0]);
         
-        lines1.coalesce(1).saveAsTextFile(args[2], org.sparkAligner.Lz77FPGACodec.class);
+        int readPartition = 1;		
+		/*
+		IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(arg0 + ".idx"));
+		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(arg0 + ".1sai"));  
+		IvalPointerWrapper ival2 = new IvalPointerWrapper(CommonUtils.readFile(arg0 + ".2sai"));
+		UINT32PointerWrapper sai = new UINT32PointerWrapper(CommonUtils.readFile(arg0 + ".sai"));
+		UINT8PointerWrapper ref  = new UINT8PointerWrapper(CommonUtils.readFile(arg0));
+		
+		ArrayList<ReadTWrapper> reads = new ArrayList<ReadTWrapper>();
+		CommonUtils.loadReadsFromFile(reads, arg1);
+		 */
+        
+        JavaSparkContext context = new JavaSparkContext(conf);
+        JavaPairRDD<IntWritable, BytesWritable> readsRDD = context.sequenceFile(args[1], IntWritable.class, BytesWritable.class, readPartition);
+        
+        PairFunction<Tuple2<IntWritable, BytesWritable>, IntWritable, BytesWritable> mapToClone 
+        = new PairFunction<Tuple2<IntWritable,BytesWritable>, IntWritable, BytesWritable>() {
+            @Override
+            public Tuple2<IntWritable, BytesWritable> call(Tuple2<IntWritable, BytesWritable> arg0)
+                    throws Exception {
+                byte[] bytesCopied = new byte[arg0._2.getLength()];
+                System.arraycopy(arg0._2.getBytes(), 0, bytesCopied, 0, bytesCopied.length);
+                return new Tuple2<IntWritable, BytesWritable>(new IntWritable(arg0._1.get()), new BytesWritable(bytesCopied));
+            }
+        };
+        
+        System.out.println( readsRDD.mapToPair(mapToClone).take(10)) ;
+        
+        
+        //lines1.coalesce(1).saveAsTextFile(args[2], org.sparkAligner.Lz77FPGACodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.hadoop.io.compress.DefaultCodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.spark.io.SnappyCompressionCodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.hadoop.io.compress.Lz4Codec.class);

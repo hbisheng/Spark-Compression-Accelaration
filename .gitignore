@@ -1,9 +1,12 @@
-./
-!/src
+/target/
+/lzo/
+/bin/
+/lib/
+/Lz77_FPGA_Compression/
 
-target/
 *.sh
-lzo/
-fake_data*
-Lz77_FPGA_Compression/
 CompressFileGZIP.*
+fake_data*
+
+.project
+.classpath
