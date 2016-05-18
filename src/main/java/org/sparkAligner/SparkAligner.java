@@ -46,7 +46,7 @@ public class SparkAligner {
     	
         SparkConf conf = new SparkConf()
         		.setAppName("org.sparkexample.WordCount")
-        		.setMaster("local[4]")
+        		.setMaster("local[12]")
         		.set("spark.kryoserializer.buffer.max", "2047m")
         		.set("spark.rdd.compress", "true");  
         conf.registerKryoClasses(
@@ -59,8 +59,7 @@ public class SparkAligner {
         
         String outputPath = args[2];
         
-        long startTime = System.currentTimeMillis();
-        int readPartition = 1;		
+        int readPartition = 12;		
 		/*
 		IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(arg0 + ".idx"));
 		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(arg0 + ".1sai"));  
@@ -71,7 +70,13 @@ public class SparkAligner {
 		ArrayList<ReadTWrapper> reads = new ArrayList<ReadTWrapper>();
 		CommonUtils.loadReadsFromFile(reads, arg1);
 		 */
+        IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(args[0] + ".idx"));
+		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".1sai"));  
+		IvalPointerWrapper ival2 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".2sai"));
+		UINT32PointerWrapper sai = new UINT32PointerWrapper(CommonUtils.readFile(args[0] + ".sai"));
+		UINT8PointerWrapper ref  = new UINT8PointerWrapper(CommonUtils.readFile(args[0]));
         
+        long startTime = System.currentTimeMillis();
         JavaSparkContext context = new JavaSparkContext(conf);
         JavaPairRDD<IntWritable, BytesWritable> readsRDD = context.sequenceFile(args[1], IntWritable.class, BytesWritable.class, readPartition);
         
@@ -86,11 +91,6 @@ public class SparkAligner {
             }
         };
         
-        IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(args[0] + ".idx"));
-		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".1sai"));  
-		IvalPointerWrapper ival2 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".2sai"));
-		UINT32PointerWrapper sai = new UINT32PointerWrapper(CommonUtils.readFile(args[0] + ".sai"));
-		UINT8PointerWrapper ref  = new UINT8PointerWrapper(CommonUtils.readFile(args[0]));
         
 		final Broadcast< IndexPointerWrapper > bcIdx = context.broadcast(idx);
 		final Broadcast< IvalPointerWrapper > bcIval1 = context.broadcast(ival1);
