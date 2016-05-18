@@ -110,7 +110,7 @@ public class SparkAligner {
 				ReadTWrapper read = new ReadTWrapper(arg0._2.getBytes());
 				FmIndex.alignFunc(read, idx, ival1, ival2);
 				
-				return ""+arg0._1.get() + " " + read.sym + " " + read.len + " " + read.high + " " + read.low + " " + read.is_align;
+				return ""+arg0._1.get() + " " + new String(read.sym) + " " + read.len + " " + read.high + " " + read.low + " " + read.is_align;
 			}
 		};
 		clonedReadsRDD.map(f).saveAsTextFile(outputPath);
