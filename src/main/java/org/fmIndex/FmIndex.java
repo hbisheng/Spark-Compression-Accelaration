@@ -71,7 +71,7 @@ public class FmIndex {
 		System.out.println("Elaspsed time: " + (System.currentTimeMillis() - startTime) / 1000.0 );
 	}
 
-	static void alignFunc(ReadTWrapper read,
+	public static void alignFunc(ReadTWrapper read,
 			IndexPointerWrapper idx, IvalPointerWrapper ival1,
 			IvalPointerWrapper ival2) {
 		int len = read.len;

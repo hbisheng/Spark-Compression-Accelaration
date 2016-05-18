@@ -24,6 +24,7 @@ import org.fmIndex.ReadTWrapper;
 import org.fmIndex.UINT32PointerWrapper;
 import org.fmIndex.UINT8PointerWrapper;
 
+import org.fmIndex.FmIndex;
 import scala.Serializable;
 import scala.Tuple2;
 
@@ -56,6 +57,8 @@ public class SparkAligner {
             ); 
         //conf.set("spark.hadoop.io.compression.codecs", "org.sparkAligner.TmpGzipCodec");
         
+        String outputPath = args[2];
+        
         long startTime = System.currentTimeMillis();
         int readPartition = 1;		
 		/*
@@ -83,7 +86,34 @@ public class SparkAligner {
             }
         };
         
-        System.out.println( readsRDD.mapToPair(mapToClone).take(10)) ;
+        IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(args[0] + ".idx"));
+		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".1sai"));  
+		IvalPointerWrapper ival2 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".2sai"));
+		UINT32PointerWrapper sai = new UINT32PointerWrapper(CommonUtils.readFile(args[0] + ".sai"));
+		UINT8PointerWrapper ref  = new UINT8PointerWrapper(CommonUtils.readFile(args[0]));
+        
+		final Broadcast< IndexPointerWrapper > bcIdx = context.broadcast(idx);
+		final Broadcast< IvalPointerWrapper > bcIval1 = context.broadcast(ival1);
+		final Broadcast< IvalPointerWrapper > bcIval2 = context.broadcast(ival2);
+        
+        JavaPairRDD<IntWritable, BytesWritable> clonedReadsRDD = readsRDD.mapToPair(mapToClone);
+        
+		Function<Tuple2<IntWritable, BytesWritable> , String> f = new Function<Tuple2<IntWritable,BytesWritable>, String>() {
+			@Override
+			public String call(Tuple2<IntWritable, BytesWritable> arg0)
+					throws Exception {
+				
+				IndexPointerWrapper idx = bcIdx.value();
+				IvalPointerWrapper ival1 = bcIval1.value();
+				IvalPointerWrapper ival2 = bcIval2.value();
+				
+				ReadTWrapper read = new ReadTWrapper(arg0._2.getBytes());
+				FmIndex.alignFunc(read, idx, ival1, ival2);
+				
+				return ""+arg0._1.get() + " " + read.sym + " " + read.len + " " + read.high + " " + read.low + " " + read.is_align;
+			}
+		};
+		clonedReadsRDD.map(f).saveAsTextFile(outputPath);
         
         //lines1.coalesce(1).saveAsTextFile(args[2], org.sparkAligner.Lz77FPGACodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.hadoop.io.compress.DefaultCodec.class);

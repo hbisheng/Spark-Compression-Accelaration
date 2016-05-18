@@ -14,11 +14,11 @@ struct read_t {
 
 public class ReadTWrapper {
 	
-	byte[] sym;
-	long low;
-	long high;
-	int len;
-	boolean is_align;
+	public byte[] sym;
+	public long low;
+	public long high;
+	public int len;
+	public boolean is_align;
 	public ReadTWrapper(byte[] bytes) throws Exception {
 		if(bytes.length > Constant.MAX_READ_LENGTH) {
 			throw new Exception("Read len =" +bytes.length+ " exceeds MAX_READ_LENGTH("+Constant.MAX_READ_LENGTH+")");
