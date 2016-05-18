@@ -48,9 +48,15 @@ public class SparkAligner {
         		.setMaster("local[4]")
         		.set("spark.kryoserializer.buffer.max", "2047m")
         		.set("spark.rdd.compress", "true");  
+        conf.registerKryoClasses(
+                new Class<?>[] {
+                    Class.forName("org.apache.hadoop.io.IntWritable"),
+                    Class.forName("org.apache.hadoop.io.BytesWritable")
+                }
+            ); 
         //conf.set("spark.hadoop.io.compression.codecs", "org.sparkAligner.TmpGzipCodec");
-        long startTime = System.currentTimeMillis();
         
+        long startTime = System.currentTimeMillis();
         int readPartition = 1;		
 		/*
 		IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(arg0 + ".idx"));
@@ -79,7 +85,6 @@ public class SparkAligner {
         
         System.out.println( readsRDD.mapToPair(mapToClone).take(10)) ;
         
-        
         //lines1.coalesce(1).saveAsTextFile(args[2], org.sparkAligner.Lz77FPGACodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.hadoop.io.compress.DefaultCodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.spark.io.SnappyCompressionCodec.class);
@@ -88,7 +93,7 @@ public class SparkAligner {
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.hadoop.io.compress.GzipCodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.hadoop.io.compress.SnappyCodec.class); 
         
-		System.out.println("\n----------------Total Eclapsed time: " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds.\n");
+		System.out.println("\n----------------Total Elapsed time: " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds.\n");
         context.stop();
         context.close();
     }
