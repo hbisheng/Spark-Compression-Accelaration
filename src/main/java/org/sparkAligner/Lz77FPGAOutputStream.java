@@ -40,6 +40,8 @@ public final class Lz77FPGAOutputStream
     private int inputLength = 0;
     SWIGTYPE_p_unsigned_char FPGAinput;
     
+    private final int MAX_INPUT_SIZE = 2 * 1024 * 1024 * 1024;
+    
     public Lz77FPGAOutputStream(OutputStream out)
             throws IOException
     {
@@ -48,7 +50,7 @@ public final class Lz77FPGAOutputStream
             throw new NullPointerException();
         }
     	this.outChannel = outChannel;
-    	FPGAinput = compression_core.new_uint8_t_array(1024 * 1024 * 1024);
+    	FPGAinput = compression_core.new_uint8_t_array(MAX_INPUT_SIZE);
     }
 
     /**
@@ -67,6 +69,11 @@ public final class Lz77FPGAOutputStream
         if (closed) {
             throw new IOException("Stream is closed");
         }
+        if(inputLength + 1 > MAX_INPUT_SIZE) {
+    	  System.err.println("FPGA input size exceeds MAX_INPUT_SIZE(" + MAX_INPUT_SIZE + ").\n");
+	      System.exit(1);
+        }
+        
         compression_core.uint8_t_array_setitem(FPGAinput, inputLength++, (byte) b);
     }
 
@@ -88,6 +95,11 @@ public final class Lz77FPGAOutputStream
             throw new IndexOutOfBoundsException();
         }
         
+        if(inputLength+length > MAX_INPUT_SIZE) {
+    	  System.err.println("FPGA input size exceeds MAX_INPUT_SIZE(" + MAX_INPUT_SIZE + ").\n");
+	      System.exit(1);
+        }
+        
         for(int i = 0; i < length; i++) {
         	compression_core.uint8_t_array_setitem(FPGAinput, inputLength++, input[offset+i]);
         }
@@ -105,6 +117,12 @@ public final class Lz77FPGAOutputStream
         byte[] srcArray = src.array();
         int srcOffset = src.position();
         int srcLength = src.remaining();
+        
+        if(inputLength+srcLength > MAX_INPUT_SIZE) {
+      	  System.err.println("FPGA input size exceeds MAX_INPUT_SIZE(" + MAX_INPUT_SIZE + ").\n");
+  	      System.exit(1);
+          }
+        
         for(int i = 0; i < srcLength; i++) {
         	compression_core.uint8_t_array_setitem(FPGAinput, inputLength++, srcArray[srcOffset+i]);
         }
