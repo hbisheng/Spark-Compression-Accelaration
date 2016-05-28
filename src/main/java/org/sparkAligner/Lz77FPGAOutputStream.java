@@ -40,7 +40,7 @@ public final class Lz77FPGAOutputStream
     private int inputLength = 0;
     SWIGTYPE_p_unsigned_char FPGAinput;
     
-    private final int MAX_INPUT_SIZE = 2 * 1024 * 1024 * 1024;
+    private final int MAX_INPUT_SIZE = 2047 * 1024 * 1024;
     
     public Lz77FPGAOutputStream(OutputStream out)
             throws IOException
@@ -50,7 +50,7 @@ public final class Lz77FPGAOutputStream
             throw new NullPointerException();
         }
     	this.outChannel = outChannel;
-    	FPGAinput = compression_core.new_uint8_t_array(MAX_INPUT_SIZE);
+		FPGAinput = compression_core.new_uint8_t_array(MAX_INPUT_SIZE);
     }
 
     /**

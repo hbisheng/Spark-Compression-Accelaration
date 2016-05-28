@@ -60,7 +60,7 @@ public class SparkAligner {
         String outputPath = args[2];
         
         int readPartition = 12;	
-		int writePartition = 12;	
+		int writePartition = 1;	
 		/*
 		IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(arg0 + ".idx"));
 		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(arg0 + ".1sai"));  
@@ -114,9 +114,10 @@ public class SparkAligner {
 				return ""+arg0._1.get() + " " + new String(read.sym) + " " + read.len + " " + read.high + " " + read.low + " " + read.is_align;
 			}
 		};
-		clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath);
+		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
        	//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class); 
+       	clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class); 
         
 		//lines1.coalesce(1).saveAsTextFile(args[2], org.sparkAligner.Lz77FPGACodec.class);
         //lines1.coalesce(1).saveAsTextFile(args[2], org.apache.hadoop.io.compress.DefaultCodec.class);
