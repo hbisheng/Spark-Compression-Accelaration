@@ -83,19 +83,21 @@ public class SparkAligner {
 		JavaSparkContext context = new JavaSparkContext(conf);
 		
 		long startTime = System.currentTimeMillis();
-        JavaRDD<String> lines1 = context.textFile(args[1], readPartition);
+        //JavaRDD<String> lines1 = context.textFile(args[1], readPartition);
+        JavaRDD<String> lines1 = context.textFile(args[1]);
         Function<String, String> easyFunc = new Function<String, String>() {
 			@Override
 			public String call(String arg0) throws Exception {		
-				return arg0 + "hi";
+				return arg0 + " hello";
 			}
 		};
-		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
+		
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.SnappyCodec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz4Codec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.GzipCodec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.BZip2Codec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
+		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.BZip2Codec.class);
 		
         /*
         JavaPairRDD<IntWritable, BytesWritable> readsRDD = context.sequenceFile(args[1], IntWritable.class, BytesWritable.class, readPartition);
