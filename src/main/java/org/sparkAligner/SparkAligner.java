@@ -74,12 +74,15 @@ public class SparkAligner {
 		ArrayList<ReadTWrapper> reads = new ArrayList<ReadTWrapper>();
 		CommonUtils.loadReadsFromFile(reads, arg1);
 		 */
+		
+		/*
         IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(args[0] + ".idx"));
 		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".1sai"));  
 		IvalPointerWrapper ival2 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".2sai"));
 		UINT32PointerWrapper sai = new UINT32PointerWrapper(CommonUtils.readFile(args[0] + ".sai"));
 		UINT8PointerWrapper ref  = new UINT8PointerWrapper(CommonUtils.readFile(args[0]));
-        
+        */
+		
 		JavaSparkContext context = new JavaSparkContext(conf);
 		
 		long startTime = System.currentTimeMillis();
@@ -87,15 +90,19 @@ public class SparkAligner {
         Function<String, String> easyFunc = new Function<String, String>() {
 			@Override
 			public String call(String arg0) throws Exception {		
-				return arg0 + "hi";
+				return arg0 + " hello";
 			}
 		};
-		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.SnappyCodec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz4Codec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.GzipCodec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.BZip2Codec.class);
+		
+		
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
+		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.BZip2Codec.class);
+		
+		
 		
         /*
         JavaPairRDD<IntWritable, BytesWritable> readsRDD = context.sequenceFile(args[1], IntWritable.class, BytesWritable.class, readPartition);
