@@ -28,12 +28,6 @@ import org.fmIndex.FmIndex;
 import scala.Serializable;
 import scala.Tuple2;
 
-
-
-
-
-
-
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -87,8 +81,25 @@ public class SparkAligner {
 			}
 		};
 		
+		Clock.start();
+		int ARRAY_SIZE = 2047 * 1024 * 1024;
+		SWIGTYPE_p_unsigned_char arrayInC = compression_core.new_uint8_t_array(ARRAY_SIZE);
+		System.out.println(Clock.elapsedTimeInSeconds("Alloc an array of 2GB size in C"));
+		
+		for(int i = 0; i < ARRAY_SIZE; i++) {
+			compression_core.uint8_t_array_setitem(arrayInC, i, (byte) (i%256));
+		}
+		System.out.println(Clock.elapsedTimeInSeconds("Write 2GB into C"));
+		
+		byte arrayInJava[] = new byte[ARRAY_SIZE];
+		System.out.println(Clock.elapsedTimeInSeconds("Alloc an array of 2GB size in Java"));
+		for(int i = 0; i < ARRAY_SIZE; i++) {
+			arrayInJava[i] = (byte)compression_core.uint8_t_array_getitem(arrayInC, i) ;
+		}
+		System.out.println(Clock.elapsedTimeInSeconds("Read 2GB into Java"));
+		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
-		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
 		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
@@ -131,7 +142,8 @@ public class SparkAligner {
 			}
 		};
 		*/
-		System.out.println("Read part = " + readPartition + " Write part = " + writePartition);
+		
+		//System.out.println("Read part = " + readPartition + " Write part = " + writePartition);
 		//System.out.println("Compression: Lz4");
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);

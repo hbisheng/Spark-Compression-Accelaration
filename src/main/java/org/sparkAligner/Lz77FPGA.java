@@ -9,6 +9,7 @@ public class Lz77FPGA {
     
     static long timeStart = -1;
     static long timeMark = -1;
+    
     static String elapsedTimeInSeconds(){
         long timeNow = System.currentTimeMillis();
         long elapsedTime = (timeNow - timeMark);
