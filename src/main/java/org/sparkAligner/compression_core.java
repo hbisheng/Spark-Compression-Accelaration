@@ -90,7 +90,7 @@ public class compression_core {
     compression_coreJNI.unloadFPGAs(num);
   }
 
-  public static java.math.BigInteger Lz77CompressOverall(byte[] dataInJava, int length, int dfe_id) {
+  public static int Lz77CompressOverall(byte[] dataInJava, int length, int dfe_id) {
     return compression_coreJNI.Lz77CompressOverall(dataInJava, length, dfe_id);
   }
 

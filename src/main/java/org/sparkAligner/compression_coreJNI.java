@@ -28,7 +28,7 @@ public class compression_coreJNI {
   public final static native long maxFile_get();
   public final static native void loadFPGAs(int jarg1);
   public final static native void unloadFPGAs(int jarg1);
-  public final static native java.math.BigInteger Lz77CompressOverall(byte[] jarg1, int jarg2, int jarg3);
+  public final static native int Lz77CompressOverall(byte[] jarg1, int jarg2, int jarg3);
   public final static native java.math.BigInteger Lz77Compress_C_Write_Compress(long jarg1, long jarg2, int jarg3);
   public final static native long Lz77Compress_C_ReadLmem_helperfunc(long jarg1, java.math.BigInteger jarg2, int jarg3);
 }

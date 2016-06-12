@@ -305,7 +305,7 @@ static void ull_array_setitem(unsigned long long *ary, int index, unsigned long 
         max_file_free(maxFile);
     }
     
-    uint64_t Lz77CompressOverall( char* dataInJava, int length, int dfe_id ) {
+    int Lz77CompressOverall( char* dataInJava, int length, int dfe_id ) {
         
         int64_t param_N = (int64_t) length;
 
@@ -712,12 +712,12 @@ SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_unloadFPGAs(J
 }
 
 
-SWIGEXPORT jobject JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77CompressOverall(JNIEnv *jenv, jclass jcls, jbyteArray jarg1, jint jarg2, jint jarg3) {
-  jobject jresult = 0 ;
+SWIGEXPORT jint JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77CompressOverall(JNIEnv *jenv, jclass jcls, jbyteArray jarg1, jint jarg2, jint jarg3) {
+  jint jresult = 0 ;
   char *arg1 = (char *) 0 ;
   int arg2 ;
   int arg3 ;
-  uint64_t result;
+  int result;
   
   (void)jenv;
   (void)jcls;
@@ -726,24 +726,8 @@ SWIGEXPORT jobject JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77Compre
   }
   arg2 = (int)jarg2; 
   arg3 = (int)jarg3; 
-  result = (uint64_t)Lz77CompressOverall(arg1,arg2,arg3);
-  {
-    jbyteArray ba = jenv->NewByteArray(9);
-    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
-    jclass clazz = jenv->FindClass("java/math/BigInteger");
-    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
-    jobject bigint;
-    int i;
-    
-    bae[0] = 0;
-    for(i=1; i<9; i++ ) {
-      bae[i] = (jbyte)(result>>8*(8-i));
-    }
-    
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-    bigint = jenv->NewObject(clazz, mid, ba);
-    jresult = bigint;
-  }
+  result = (int)Lz77CompressOverall(arg1,arg2,arg3);
+  jresult = (jint)result; 
   {
     jenv->ReleaseByteArrayElements(jarg1, (jbyte *) arg1, 0); 
   }
