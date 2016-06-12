@@ -175,7 +175,7 @@ public final class Lz77FPGAOutputStream
             throws IOException
     {
     	
-    	Lz77FPGA.compress2(FPGAinput, inputLength, outChannel);
+    	//Lz77FPGA.compress2(FPGAinput, inputLength, outChannel);
     	
     }   
 }
