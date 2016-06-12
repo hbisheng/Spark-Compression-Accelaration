@@ -150,6 +150,6 @@ public final class Lz77FPGAOutputStream
     {
     	byte[] backingArray = rawBuffer.array();
     	int length = rawBuffer.remaining();
-    	int compressedSize = Lz77FPGA.FPGACompress(backingArray, length, mOut);
+    	Lz77FPGA.FPGACompress(backingArray, length, mOut);
     }   
 }

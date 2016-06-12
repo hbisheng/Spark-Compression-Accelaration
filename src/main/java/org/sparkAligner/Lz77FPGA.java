@@ -50,7 +50,7 @@ public class Lz77FPGA {
 		return null;
 	}
 
-	public static void FPGACompress(byte[] backingArray, int length, OutputStream mOut) {
+	public static void FPGACompress(byte[] backingArray, int length, OutputStream mOut) throws IOException {
 		
 		Clock.start();
 		int input_bytes_len = length / 384 * 384;
