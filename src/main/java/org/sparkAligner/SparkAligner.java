@@ -83,10 +83,9 @@ public class SparkAligner {
 		};
 		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
-		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
-		
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
+		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.BZip2Codec.class);
 		
