@@ -21,11 +21,13 @@ public class compression_coreJNI {
   public final static native void delete_ull_array(long jarg1);
   public final static native java.math.BigInteger ull_array_getitem(long jarg1, int jarg2);
   public final static native void ull_array_setitem(long jarg1, int jarg2, java.math.BigInteger jarg3);
-  public final static native void Lz77Compress_WriteLmem(long jarg1, long jarg2);
-  public final static native void Lz77Compress(long jarg1, long jarg2);
-  public final static native void Lz77Compress_ReadLmem(long jarg1, long jarg2);
+  public final static native int MAX_FPGA_NUM_get();
+  public final static native void engine_set(long jarg1);
+  public final static native long engine_get();
+  public final static native void maxFile_set(long jarg1);
+  public final static native long maxFile_get();
+  public final static native void loadFPGAs(int jarg1);
+  public final static native void unloadFPGAs(int jarg1);
   public final static native java.math.BigInteger Lz77Compress_C_Write_Compress(long jarg1, long jarg2, int jarg3);
   public final static native long Lz77Compress_C_ReadLmem_helperfunc(long jarg1, java.math.BigInteger jarg2, int jarg3);
-  public final static native java.math.BigInteger Lz77Compress_helperfunc(long jarg1);
-  public final static native long Lz77Compress_ReadLmem_helperfunc(long jarg1, java.math.BigInteger jarg2);
 }

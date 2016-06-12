@@ -60,16 +60,34 @@ public class compression_core {
     compression_coreJNI.ull_array_setitem(SWIGTYPE_p_unsigned_long_long.getCPtr(ary), index, value);
   }
 
-  public static void Lz77Compress_WriteLmem(long param_N, SWIGTYPE_p_unsigned_char instream_input) {
-    compression_coreJNI.Lz77Compress_WriteLmem(param_N, SWIGTYPE_p_unsigned_char.getCPtr(instream_input));
+  public static int getMAX_FPGA_NUM() {
+    return compression_coreJNI.MAX_FPGA_NUM_get();
   }
 
-  public static void Lz77Compress(long param_N, SWIGTYPE_p_unsigned_long_long outscalar_WriteEncodedDataKernel_totalLen) {
-    compression_coreJNI.Lz77Compress(param_N, SWIGTYPE_p_unsigned_long_long.getCPtr(outscalar_WriteEncodedDataKernel_totalLen));
+  public static void setEngine(SWIGTYPE_p_p_max_engine_t value) {
+    compression_coreJNI.engine_set(SWIGTYPE_p_p_max_engine_t.getCPtr(value));
   }
 
-  public static void Lz77Compress_ReadLmem(long param_N, SWIGTYPE_p_unsigned_long_long outstream_dataToCPU) {
-    compression_coreJNI.Lz77Compress_ReadLmem(param_N, SWIGTYPE_p_unsigned_long_long.getCPtr(outstream_dataToCPU));
+  public static SWIGTYPE_p_p_max_engine_t getEngine() {
+    long cPtr = compression_coreJNI.engine_get();
+    return (cPtr == 0) ? null : new SWIGTYPE_p_p_max_engine_t(cPtr, false);
+  }
+
+  public static void setMaxFile(SWIGTYPE_p_max_file_t value) {
+    compression_coreJNI.maxFile_set(SWIGTYPE_p_max_file_t.getCPtr(value));
+  }
+
+  public static SWIGTYPE_p_max_file_t getMaxFile() {
+    long cPtr = compression_coreJNI.maxFile_get();
+    return (cPtr == 0) ? null : new SWIGTYPE_p_max_file_t(cPtr, false);
+  }
+
+  public static void loadFPGAs(int num) {
+    compression_coreJNI.loadFPGAs(num);
+  }
+
+  public static void unloadFPGAs(int num) {
+    compression_coreJNI.unloadFPGAs(num);
   }
 
   public static java.math.BigInteger Lz77Compress_C_Write_Compress(long param_N, SWIGTYPE_p_unsigned_char instream_input, int dfe_id) {
@@ -78,15 +96,6 @@ public class compression_core {
 
   public static SWIGTYPE_p_unsigned_char Lz77Compress_C_ReadLmem_helperfunc(long param_N, java.math.BigInteger total_len, int dfe_id) {
     long cPtr = compression_coreJNI.Lz77Compress_C_ReadLmem_helperfunc(param_N, total_len, dfe_id);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_unsigned_char(cPtr, false);
-  }
-
-  public static java.math.BigInteger Lz77Compress_helperfunc(long param_N) {
-    return compression_coreJNI.Lz77Compress_helperfunc(param_N);
-  }
-
-  public static SWIGTYPE_p_unsigned_char Lz77Compress_ReadLmem_helperfunc(long param_N, java.math.BigInteger total_len) {
-    long cPtr = compression_coreJNI.Lz77Compress_ReadLmem_helperfunc(param_N, total_len);
     return (cPtr == 0) ? null : new SWIGTYPE_p_unsigned_char(cPtr, false);
   }
 

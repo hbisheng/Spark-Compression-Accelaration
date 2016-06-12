@@ -281,60 +281,56 @@ static void ull_array_setitem(unsigned long long *ary, int index, unsigned long 
 
 #include "Maxfiles.h"
 #include "MaxSLiCInterface.h"
-#include "time.h"
+#include "time.h"   
 #include "stdio.h"
 #include <stdint.h>
 
 
-
-    extern void Lz77Compress_WriteLmem(int64_t param_N, const uint8_t *instream_input);
-    extern void Lz77Compress(int64_t param_N, uint64_t *outscalar_WriteEncodedDataKernel_totalLen);
-    extern void Lz77Compress_ReadLmem(int64_t param_N, uint64_t *outstream_dataToCPU);
+    
+    const int MAX_FPGA_NUM = 8;
+    max_engine_t *engine[MAX_FPGA_NUM];
+    max_file_t *maxFile;
+    
+    void loadFPGAs(int num) {
+        maxFile = Lz77Compress_init();
+        for(int i = 0; i < num; i++) {
+            engine[i] = max_load(maxFile, "*");
+        }
+    }
+    
+    void unloadFPGAs(int num) {
+        for(int i = 0; i < num; i++) {
+            max_unload(engine[i]);
+        }
+        max_file_free(maxFile);
+    }
     
     uint64_t Lz77Compress_C_Write_Compress(int64_t param_N, const uint8_t *instream_input, int dfe_id) {
-        
-        max_file_t *maxFile = Lz77Compress_init();
-        
-        char dfeId[100];
-        sprintf(dfeId, "*:%d", dfe_id);
-        max_engine_t *maxEngine = max_load(maxFile, dfeId);
         
         Lz77Compress_WriteLmem_actions_t writeAction;
         writeAction.param_N = param_N;
         writeAction.instream_input = instream_input;
-        Lz77Compress_WriteLmem_run(maxEngine, &writeAction);
+        Lz77Compress_WriteLmem_run(engine[dfe_id], &writeAction);
         
         Lz77Compress_actions_t compressAction;
         compressAction.param_N = param_N;
 
         uint64_t total_len = 0;
         compressAction.outscalar_WriteEncodedDataKernel_totalLen = &total_len;
-        Lz77Compress_run(maxEngine, &compressAction);
-        
-        max_unload(maxEngine);
-        max_file_free(maxFile);
+        Lz77Compress_run(engine[dfe_id], &compressAction);
         
         return total_len;
     }
 
     uint8_t* Lz77Compress_C_ReadLmem_helperfunc(int64_t param_N, uint64_t total_len, int dfe_id) {
         
-        max_file_t *maxFile = Lz77Compress_init();
-        char dfeId[100];
-        sprintf(dfeId, "*:%d", dfe_id);
-        max_engine_t *maxEngine = max_load(maxFile, dfeId);
-
         uint8_t* result = new uint8_t[param_N];
         uint64_t* encoded_res = new uint64_t[param_N / 8];
         
         Lz77Compress_ReadLmem_actions_t readAction;
         readAction.param_N = param_N;
         readAction.outstream_dataToCPU = encoded_res;
-        Lz77Compress_ReadLmem_run(maxEngine, &readAction);
-
-        max_unload(maxEngine);
-        max_file_free(maxFile);
-        
+        Lz77Compress_ReadLmem_run(engine[dfe_id], &readAction);
         
         int len_output = total_len / 8;
         if(total_len % 8 != 0) {
@@ -350,44 +346,6 @@ static void ull_array_setitem(unsigned long long *ary, int index, unsigned long 
             if(num_c == len_output)
                 break;
         }
-        return result;
-    }
-
-
-    uint64_t Lz77Compress_helperfunc(int64_t param_N) {
-        uint64_t total_len = 0;
-        Lz77Compress(param_N, &total_len);
-        return total_len;
-    }
-
-
-    uint8_t* Lz77Compress_ReadLmem_helperfunc(int64_t param_N, uint64_t total_len) {
-        struct timeval start, end;
-        gettimeofday( &start, NULL );
-        uint8_t* result = new uint8_t[param_N];
-        uint64_t* encoded_res = new uint64_t[param_N / 8];
-        Lz77Compress_ReadLmem(param_N, encoded_res);
-        gettimeofday( &end, NULL );
-        printf( "new time : %d ms \n", (1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec) / 1000 );
-
-        int len_output = total_len / 8;
-        if(total_len % 8 != 0) {
-            len_output ++;
-        }
-        int num_c = 0;
-        for(int i = 0; i < param_N; i++) {
-            for(int j = 0; j < 8; j++) {
-                result[num_c++] = (uint8_t)( encoded_res[i] >> 8*(7-j));
-                if(num_c == len_output)
-                    break;
-            }
-            if(num_c == len_output)
-                break;
-        }
-
-        gettimeofday( &end, NULL );
-        printf( "ReadLmem total time : %d ms\n", (1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec) / 1000 );
-
         return result;
     }
 
@@ -635,39 +593,84 @@ SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_ull_1array_1s
 }
 
 
-SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77Compress_1WriteLmem(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
-  int64_t arg1 ;
-  uint8_t *arg2 = (uint8_t *) 0 ;
+SWIGEXPORT jint JNICALL Java_org_sparkAligner_compression_1coreJNI_MAX_1FPGA_1NUM_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
   
   (void)jenv;
   (void)jcls;
-  arg1 = (int64_t)jarg1; 
-  arg2 = *(uint8_t **)&jarg2; 
-  Lz77Compress_WriteLmem(arg1,(unsigned char const *)arg2);
+  result = (int)(int)MAX_FPGA_NUM;
+  jresult = (jint)result; 
+  return jresult;
 }
 
 
-SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77Compress(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
-  int64_t arg1 ;
-  uint64_t *arg2 = (uint64_t *) 0 ;
+SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_engine_1set(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  max_engine_t **arg1 ;
   
   (void)jenv;
   (void)jcls;
-  arg1 = (int64_t)jarg1; 
-  arg2 = *(uint64_t **)&jarg2; 
-  Lz77Compress(arg1,arg2);
+  arg1 = *(max_engine_t ***)&jarg1; 
+  {
+    size_t ii;
+    max_engine_t * *b = (max_engine_t * *) engine;
+    for (ii = 0; ii < (size_t)MAX_FPGA_NUM; ii++) b[ii] = *((max_engine_t * *) arg1 + ii);
+  }
+  
 }
 
 
-SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77Compress_1ReadLmem(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
-  int64_t arg1 ;
-  uint64_t *arg2 = (uint64_t *) 0 ;
+SWIGEXPORT jlong JNICALL Java_org_sparkAligner_compression_1coreJNI_engine_1get(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  max_engine_t **result = 0 ;
   
   (void)jenv;
   (void)jcls;
-  arg1 = (int64_t)jarg1; 
-  arg2 = *(uint64_t **)&jarg2; 
-  Lz77Compress_ReadLmem(arg1,arg2);
+  result = (max_engine_t **)(max_engine_t **)engine;
+  *(max_engine_t ***)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_maxFile_1set(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  max_file_t *arg1 = (max_file_t *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(max_file_t **)&jarg1; 
+  maxFile = arg1;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_sparkAligner_compression_1coreJNI_maxFile_1get(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  max_file_t *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (max_file_t *)maxFile;
+  *(max_file_t **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_loadFPGAs(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  int arg1 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1; 
+  loadFPGAs(arg1);
+}
+
+
+SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_unloadFPGAs(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  int arg1 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (int)jarg1; 
+  unloadFPGAs(arg1);
 }
 
 
@@ -740,74 +743,6 @@ SWIGEXPORT jlong JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77Compress
   }
   arg3 = (int)jarg3; 
   result = (uint8_t *)Lz77Compress_C_ReadLmem_helperfunc(arg1,arg2,arg3);
-  *(uint8_t **)&jresult = result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jobject JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77Compress_1helperfunc(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  jobject jresult = 0 ;
-  int64_t arg1 ;
-  uint64_t result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (int64_t)jarg1; 
-  result = (uint64_t)Lz77Compress_helperfunc(arg1);
-  {
-    jbyteArray ba = jenv->NewByteArray(9);
-    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
-    jclass clazz = jenv->FindClass("java/math/BigInteger");
-    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
-    jobject bigint;
-    int i;
-    
-    bae[0] = 0;
-    for(i=1; i<9; i++ ) {
-      bae[i] = (jbyte)(result>>8*(8-i));
-    }
-    
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-    bigint = jenv->NewObject(clazz, mid, ba);
-    jresult = bigint;
-  }
-  return jresult;
-}
-
-
-SWIGEXPORT jlong JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77Compress_1ReadLmem_1helperfunc(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jlong jresult = 0 ;
-  int64_t arg1 ;
-  uint64_t arg2 ;
-  uint8_t *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (int64_t)jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (uint8_t *)Lz77Compress_ReadLmem_helperfunc(arg1,arg2);
   *(uint8_t **)&jresult = result; 
   return jresult;
 }

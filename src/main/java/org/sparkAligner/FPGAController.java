@@ -9,6 +9,7 @@ public class FPGAController {
 		
 	static {
 		for(int i = 0; i < FPGA_NUM; i++) available[i] = true;
+		System.out.println("FPGA controller initialized");
     }
 	
 	static int getFPGAGrant(){
