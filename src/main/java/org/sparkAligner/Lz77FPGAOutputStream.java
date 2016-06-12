@@ -175,16 +175,9 @@ public final class Lz77FPGAOutputStream
             throws IOException
     {
     	int i = FPGAController.getFPGAGrant();
-    	try {
-			Thread.sleep(10 * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    	FPGAController.releaseFPGAGrant(i);
     	
-		//byte[] compressedBytes = Lz77FPGA.compress(FPGAinput, inputLength, outChannel);
-        
-    	//outChannel.write(ByteBuffer.wrap(compressedBytes));  
-    
+    	Lz77FPGA.compress(FPGAinput, inputLength, outChannel);
+    	
+    	FPGAController.releaseFPGAGrant(i);
     }   
 }

@@ -52,7 +52,7 @@ public static byte[] compress(SWIGTYPE_p_unsigned_char FPGAinput, int length, Wr
 	    System.out.println( String.format("Compression ratio: %.3f", 1.0*input_bytes_len / compressed_byte_num ) );
 	    
 	    
-	    int outputBulkSize = 1024 * 1024;
+	    int outputBulkSize = 1024 * 1024 * 512; 
 		byte[] outputBulk = new byte[outputBulkSize];
 		for(int i = 0 ; i < compressed_byte_num ; i++){	
 			outputBulk[i % outputBulkSize] = (byte)compression_core.uint8_t_array_getitem(encoded_bytes, i) ;
@@ -60,7 +60,6 @@ public static byte[] compress(SWIGTYPE_p_unsigned_char FPGAinput, int length, Wr
 				outChannel.write(ByteBuffer.wrap(outputBulk));
 			}
 		}
-		
 		int left = compressed_byte_num % outputBulkSize; 
 		if( left != 0) {
 			outChannel.write(ByteBuffer.wrap(outputBulk, 0, left));

@@ -14,15 +14,12 @@ public class FPGAController {
 	static int getFPGAGrant(){
 		synchronized (mutex) {
 			while(true) {
-				System.out.println("Try to get an FPGA");
 				for(int i = 0; i < FPGA_NUM; i++) {
 					if(available[i] == true) {
 						available[i] = false;
-						System.out.println("Get FPGA" + i);
 						return i;
 					}
 				}
-				System.out.println("Get FPGA failed, go to wait");
 				
 				try {
 					mutex.wait();
