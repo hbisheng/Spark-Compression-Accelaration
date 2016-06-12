@@ -61,7 +61,7 @@ public class SparkAligner {
         
         String outputPath = args[2];
         int readPartition = 12;	
-		int writePartition = 4;	
+		int writePartition = 1;	
 		
 		/*
         IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(args[0] + ".idx"));
