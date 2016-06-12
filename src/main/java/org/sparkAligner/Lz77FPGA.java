@@ -56,10 +56,14 @@ public class Lz77FPGA {
 		int input_bytes_len = length / 384 * 384;
 		System.out.println( "Data arrive: " + length + " truncated to " + input_bytes_len);
 		
+		Clock t = new Clock();
 		int dfe_id = FPGAController.getFPGAGrant();
 		System.out.println("Get DFE No. " + dfe_id);
 		
 		int compressedSize = compression_core.Lz77CompressOverall(backingArray, input_bytes_len, dfe_id);
+		System.out.println(t.elapsedTimeInSeconds("Compress Overall Time"));
+		
+		FPGAController.releaseFPGAGrant(dfe_id);
 		mOut.write(backingArray, 0, compressedSize);
 	}
 
