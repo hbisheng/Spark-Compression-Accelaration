@@ -63,33 +63,34 @@ public class SparkAligner {
         int readPartition = 12;	
 		int writePartition = 1;	
 		
-		/*
+		
         IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(args[0] + ".idx"));
 		IvalPointerWrapper ival1 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".1sai"));  
 		IvalPointerWrapper ival2 = new IvalPointerWrapper(CommonUtils.readFile(args[0] + ".2sai"));
 		UINT32PointerWrapper sai = new UINT32PointerWrapper(CommonUtils.readFile(args[0] + ".sai"));
 		UINT8PointerWrapper ref  = new UINT8PointerWrapper(CommonUtils.readFile(args[0]));
-        */
+        
 		JavaSparkContext context = new JavaSparkContext(conf);
 		
 		Clock t = new Clock();
-		t.start();
+		
+		/*
 		JavaRDD<String> lines1 = context.textFile(args[1], readPartition);
         Function<String, String> easyFunc = new Function<String, String>() {
 			@Override
 			public String call(String arg0) throws Exception {		
 				return arg0;
 			}
-		};
+		};*/
 		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
-		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.BZip2Codec.class);
 		
-        /*
+        
         JavaPairRDD<IntWritable, BytesWritable> readsRDD = context.sequenceFile(args[1], IntWritable.class, BytesWritable.class, readPartition);
         PairFunction<Tuple2<IntWritable, BytesWritable>, IntWritable, BytesWritable> mapToClone 
         = new PairFunction<Tuple2<IntWritable,BytesWritable>, IntWritable, BytesWritable>() {
@@ -124,15 +125,14 @@ public class SparkAligner {
 				return ""+arg0._1.get() + " " + new String(read.sym) + " " + read.len + " " + read.high + " " + read.low + " " + read.is_align;
 			}
 		};
-		*/
 		
-		//System.out.println("Read part = " + readPartition + " Write part = " + writePartition);
-		//System.out.println("Compression: Lz4");
+		
+		System.out.println("Read part = " + readPartition + " Write part = " + writePartition);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.DeflateCodec.class);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.BZip2Codec.class);
-       	//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class); 
+       	clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class); 
        	//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
        	
