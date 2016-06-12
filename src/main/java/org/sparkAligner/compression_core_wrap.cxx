@@ -306,26 +306,37 @@ static void ull_array_setitem(unsigned long long *ary, int index, unsigned long 
     }
     
     int Lz77CompressOverall( char* dataInJava, int length, int dfe_id ) {
-        
+        struct timeval start, end;
         int64_t param_N = (int64_t) length;
 
+        gettimeofday( &start, NULL );
         Lz77Compress_WriteLmem_actions_t writeAction;
         writeAction.param_N = param_N;
         writeAction.instream_input = (uint8_t* ) dataInJava;
         Lz77Compress_WriteLmem_run(engine[dfe_id], &writeAction);
-
+        gettimeofday( &end, NULL );
+        printf("1. Write LMEM time: %d ms\n" , (1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec) / 1000);
+    
+        gettimeofday( &start, NULL );
         Lz77Compress_actions_t compressAction;
         compressAction.param_N = param_N;
         uint64_t total_len = 0;
         compressAction.outscalar_WriteEncodedDataKernel_totalLen = &total_len;
         Lz77Compress_run(engine[dfe_id], &compressAction);
+        gettimeofday( &end, NULL );
+        printf("2. Compress time: %d ms\n" , (1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec) / 1000);
 
+        gettimeofday( &start, NULL );
         uint64_t* encoded_res = new uint64_t[param_N / 8];      
         Lz77Compress_ReadLmem_actions_t readAction;
         readAction.param_N = param_N;
         readAction.outstream_dataToCPU = encoded_res;
         Lz77Compress_ReadLmem_run(engine[dfe_id], &readAction);
-        
+        gettimeofday( &end, NULL ); 
+        printf("3. Compress time: %d ms\n" , (1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec) / 1000);
+
+
+        gettimeofday( &start, NULL );
         int len_output = total_len / 8;
         if(total_len % 8 != 0) {
             len_output ++;
@@ -340,6 +351,9 @@ static void ull_array_setitem(unsigned long long *ary, int index, unsigned long 
             if(num_c == len_output)
                 break;
         }
+        gettimeofday( &end, NULL ); 
+        printf("4. Encode time: %d ms\n" , (1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec) / 1000);
+        
         return len_output;
     }
 
