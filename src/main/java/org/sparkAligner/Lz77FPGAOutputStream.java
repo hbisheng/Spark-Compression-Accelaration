@@ -39,7 +39,6 @@ public final class Lz77FPGAOutputStream
 
     private int inputLength = 0;
     SWIGTYPE_p_unsigned_char FPGAinput;
-    
     private final int MAX_INPUT_SIZE = 2047 * 1024 * 1024;
     
     public Lz77FPGAOutputStream(OutputStream out)
@@ -175,8 +174,17 @@ public final class Lz77FPGAOutputStream
     private void writeCompressed()
             throws IOException
     {
+    	int i = FPGAController.getFPGAGrant();
+    	try {
+			Thread.sleep(10 * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+    	FPGAController.releaseFPGAGrant(i);
     	
-		byte[] compressedBytes = Lz77FPGA.compress(FPGAinput, inputLength, outChannel);
-        //outChannel.write(ByteBuffer.wrap(compressedBytes));  
+		//byte[] compressedBytes = Lz77FPGA.compress(FPGAinput, inputLength, outChannel);
+        
+    	//outChannel.write(ByteBuffer.wrap(compressedBytes));  
+    
     }   
 }
