@@ -52,9 +52,9 @@ public class Lz77FPGA {
 
 	public static void FPGACompress(byte[] backingArray, int length, OutputStream mOut) throws IOException {
 		
-		Clock.start();
+		
 		int input_bytes_len = length / 384 * 384;
-		System.out.println( "Data arrive: Input bytes = " + length + " truncated to " + input_bytes_len);
+		System.out.println( "Data arrive: " + length + " truncated to " + input_bytes_len);
 		
 		int dfe_id = FPGAController.getFPGAGrant();
 		System.out.println("Get DFE No. " + dfe_id);

@@ -72,7 +72,8 @@ public class SparkAligner {
         */
 		JavaSparkContext context = new JavaSparkContext(conf);
 		
-		long startTime = System.currentTimeMillis();
+		Clock t = new Clock();
+		t.start();
 		JavaRDD<String> lines1 = context.textFile(args[1], readPartition);
         Function<String, String> easyFunc = new Function<String, String>() {
 			@Override
@@ -81,52 +82,8 @@ public class SparkAligner {
 			}
 		};
 		
-		Clock.start();
-		int ARRAY_SIZE = 2047 * 1024 * 1024;
-		byte arrayInJava[] = new byte[ARRAY_SIZE];
-		System.out.println(Clock.elapsedTimeInSeconds("Alloc an array of 2GB size in Java"));
-		for(int i = 0; i < ARRAY_SIZE; i++) {
-			arrayInJava[i] = 1;
-		}
-		System.out.println(Clock.elapsedTimeInSeconds("Initialized to 0"));
-		
-		compression_core.Lz77CompressOverall(arrayInJava, ARRAY_SIZE/384*384, 0);
-		System.out.println(Clock.elapsedTimeInSeconds("Performed Compression"));
-		
-		for(int i = 0; i < 40; i++) {
-			System.out.print(arrayInJava[i]);
-		}
-		System.out.println();
-		
-		/*
-		Clock.start();
-		int ARRAY_SIZE = 2047 * 1024 * 1024;
-		SWIGTYPE_p_unsigned_char arrayInC = compression_core.new_uint8_t_array(ARRAY_SIZE);
-		System.out.println(Clock.elapsedTimeInSeconds("Alloc an array of 2GB size in C"));
-		
-		for(int i = 0; i < ARRAY_SIZE; i++) {
-			compression_core.uint8_t_array_setitem(arrayInC, i, (byte) (i%256));
-		}
-		System.out.println(Clock.elapsedTimeInSeconds("Write 2GB into C"));
-		
-		byte arrayInJava[] = new byte[ARRAY_SIZE];
-		System.out.println(Clock.elapsedTimeInSeconds("Alloc an array of 2GB size in Java"));
-		for(int i = 0; i < ARRAY_SIZE; i++) {
-			arrayInJava[i] = (byte)compression_core.uint8_t_array_getitem(arrayInC, i) ;
-		}
-		System.out.println(Clock.elapsedTimeInSeconds("Read 2GB into Java"));
-		
-		byte arrayInJava2[] = new byte[ARRAY_SIZE];
-		System.out.println(Clock.elapsedTimeInSeconds("Alloc another array of 2GB size in Java"));
-		for(int i = 0; i < ARRAY_SIZE; i++) {
-			arrayInJava2[i] = arrayInJava[i];
-		}
-		System.out.println(Clock.elapsedTimeInSeconds("Transmit 2GB within Java"));
-		*/
-		
-		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
+		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
 		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
@@ -180,7 +137,8 @@ public class SparkAligner {
        	//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
 		//clonedReadsRDD.map(f).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
        	
-		System.out.println("----------------Total Elapsed time: " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds.\n");
+		System.out.println(t.elapsedTimeInSeconds("----------------Total Elapsed time"));
+		
 		compression_core.unloadFPGAs(FPGAController.FPGA_NUM);
 		context.stop();
         context.close();

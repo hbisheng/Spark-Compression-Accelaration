@@ -2,14 +2,14 @@ package org.sparkAligner;
 
 public class Clock {
 	
-    static long timeMark = -1;
+    long timeMark = -1;
     
-    static void start() {
+    void start() {
     	timeMark = System.currentTimeMillis();
     	
     }
     
-    static String elapsedTimeInSeconds(String action){
+    String elapsedTimeInSeconds(String action){
         long timeNow = System.currentTimeMillis();
         long elapsedTime = (timeNow - timeMark);
         timeMark = timeNow;
