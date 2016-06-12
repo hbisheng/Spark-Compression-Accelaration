@@ -10,8 +10,7 @@ public class Lz77FPGA {
         
     public static byte[] compress2(SWIGTYPE_p_unsigned_char FPGAinput, int length, WritableByteChannel outChannel) throws IOException {
     	
-		timeStart = System.currentTimeMillis();
-		timeMark = timeStart;
+		
 		int input_bytes_len = length / 384 * 384;
 		//System.out.println( "Input bytes = " + length + " truncated to " + input_bytes_len);
 		
