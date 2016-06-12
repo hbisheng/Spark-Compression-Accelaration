@@ -71,7 +71,7 @@ public class Lz77FPGA {
 		return null;
 	}
 
-    
+    /*
     public static byte[] compress(SWIGTYPE_p_unsigned_char FPGAinput, int length, WritableByteChannel outChannel) throws IOException {
 		
 		timeStart = System.currentTimeMillis();
@@ -115,6 +115,6 @@ public class Lz77FPGA {
 		System.out.println("Total time:" + String.format("%.3f seconds", (System.currentTimeMillis()- timeStart)/1000.0));
 		return null;
 	}
-
+	*/
 }
 
