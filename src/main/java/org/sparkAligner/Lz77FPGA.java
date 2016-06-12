@@ -59,7 +59,7 @@ public class Lz77FPGA {
 		int dfe_id = FPGAController.getFPGAGrant();
 		System.out.println("Get DFE No. " + dfe_id);
 		
-		int compressedSize = compression_core.Lz77CompressOverall(backingArray, length, dfe_id);
+		int compressedSize = compression_core.Lz77CompressOverall(backingArray, input_bytes_len, dfe_id);
 		mOut.write(backingArray, 0, compressedSize);
 	}
 
