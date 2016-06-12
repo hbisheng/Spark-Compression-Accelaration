@@ -305,8 +305,46 @@ static void ull_array_setitem(unsigned long long *ary, int index, unsigned long 
         max_file_free(maxFile);
     }
     
-    uint64_t Lz77Compress_C_Write_Compress(int64_t param_N, const uint8_t *instream_input, int dfe_id) {
+    uint64_t Lz77CompressOverall( char* dataInJava, int length, int dfe_id ) {
         
+        int64_t param_N = (int64_t) length;
+
+        Lz77Compress_WriteLmem_actions_t writeAction;
+        writeAction.param_N = param_N;
+        writeAction.instream_input = (uint8_t* ) dataInJava;
+        Lz77Compress_WriteLmem_run(engine[dfe_id], &writeAction);
+
+        Lz77Compress_actions_t compressAction;
+        compressAction.param_N = param_N;
+        uint64_t total_len = 0;
+        compressAction.outscalar_WriteEncodedDataKernel_totalLen = &total_len;
+        Lz77Compress_run(engine[dfe_id], &compressAction);
+
+        uint64_t* encoded_res = new uint64_t[param_N / 8];      
+        Lz77Compress_ReadLmem_actions_t readAction;
+        readAction.param_N = param_N;
+        readAction.outstream_dataToCPU = encoded_res;
+        Lz77Compress_ReadLmem_run(engine[dfe_id], &readAction);
+        
+        int len_output = total_len / 8;
+        if(total_len % 8 != 0) {
+            len_output ++;
+        }
+        int num_c = 0;
+        for(int i = 0; i < param_N; i++) {
+            for(int j = 0; j < 8; j++) {
+                dataInJava[num_c++] = (uint8_t)( encoded_res[i] >> 8*(7-j));
+                if(num_c == len_output)
+                    break;
+            }
+            if(num_c == len_output)
+                break;
+        }
+        return len_output;
+    }
+
+
+    uint64_t Lz77Compress_C_Write_Compress(int64_t param_N, const uint8_t *instream_input, int dfe_id) {
         Lz77Compress_WriteLmem_actions_t writeAction;
         writeAction.param_N = param_N;
         writeAction.instream_input = instream_input;
@@ -321,7 +359,7 @@ static void ull_array_setitem(unsigned long long *ary, int index, unsigned long 
         
         return total_len;
     }
-
+    
     uint8_t* Lz77Compress_C_ReadLmem_helperfunc(int64_t param_N, uint64_t total_len, int dfe_id) {
         
         uint8_t* result = new uint8_t[param_N];
@@ -671,6 +709,46 @@ SWIGEXPORT void JNICALL Java_org_sparkAligner_compression_1coreJNI_unloadFPGAs(J
   (void)jcls;
   arg1 = (int)jarg1; 
   unloadFPGAs(arg1);
+}
+
+
+SWIGEXPORT jobject JNICALL Java_org_sparkAligner_compression_1coreJNI_Lz77CompressOverall(JNIEnv *jenv, jclass jcls, jbyteArray jarg1, jint jarg2, jint jarg3) {
+  jobject jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    arg1 = (char *) jenv->GetByteArrayElements(jarg1, 0); 
+  }
+  arg2 = (int)jarg2; 
+  arg3 = (int)jarg3; 
+  result = (uint64_t)Lz77CompressOverall(arg1,arg2,arg3);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
+  {
+    jenv->ReleaseByteArrayElements(jarg1, (jbyte *) arg1, 0); 
+  }
+  
+  return jresult;
 }
 
 

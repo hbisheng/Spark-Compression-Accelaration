@@ -90,6 +90,10 @@ public class compression_core {
     compression_coreJNI.unloadFPGAs(num);
   }
 
+  public static java.math.BigInteger Lz77CompressOverall(byte[] dataInJava, int length, int dfe_id) {
+    return compression_coreJNI.Lz77CompressOverall(dataInJava, length, dfe_id);
+  }
+
   public static java.math.BigInteger Lz77Compress_C_Write_Compress(long param_N, SWIGTYPE_p_unsigned_char instream_input, int dfe_id) {
     return compression_coreJNI.Lz77Compress_C_Write_Compress(param_N, SWIGTYPE_p_unsigned_char.getCPtr(instream_input), dfe_id);
   }
