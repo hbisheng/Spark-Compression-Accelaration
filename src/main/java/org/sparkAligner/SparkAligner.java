@@ -86,15 +86,17 @@ public class SparkAligner {
 		byte arrayInJava[] = new byte[ARRAY_SIZE];
 		System.out.println(Clock.elapsedTimeInSeconds("Alloc an array of 2GB size in Java"));
 		for(int i = 0; i < ARRAY_SIZE; i++) {
-			arrayInJava[i] = 0;
+			arrayInJava[i] = 1;
 		}
 		System.out.println(Clock.elapsedTimeInSeconds("Initialized to 0"));
 		
-		compression_core.testfunc1(arrayInJava);
-		System.out.println(Clock.elapsedTimeInSeconds("Perform operation"));
+		compression_core.Lz77CompressOverall(arrayInJava, ARRAY_SIZE, 0);
+		System.out.println(Clock.elapsedTimeInSeconds("Performed Compression"));
+		
 		for(int i = 0; i < 40; i++) {
 			System.out.print(arrayInJava[i]);
 		}
+		System.out.println();
 		
 		/*
 		Clock.start();

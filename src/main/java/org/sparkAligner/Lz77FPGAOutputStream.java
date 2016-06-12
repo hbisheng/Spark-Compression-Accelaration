@@ -31,25 +31,19 @@ public final class Lz77FPGAOutputStream
 	    }
 	}
 	
-	
-    private final WritableByteChannel outChannel;
+	OutputStream mOut;
+    //private final WritableByteChannel outChannel;
 
     // private int position;
     private boolean closed;
 
-    private int inputLength = 0;
-    SWIGTYPE_p_unsigned_char FPGAinput;
     private final int MAX_INPUT_SIZE = 2047 * 1024 * 1024;
     
+    private final ByteBuffer buffer = ByteBuffer.allocate(MAX_INPUT_SIZE);
     public Lz77FPGAOutputStream(OutputStream out)
             throws IOException
     {
-    	WritableByteChannel outChannel = Channels.newChannel(out);
-    	if (outChannel == null) {
-            throw new NullPointerException();
-        }
-    	this.outChannel = outChannel;
-		FPGAinput = compression_core.new_uint8_t_array(MAX_INPUT_SIZE);
+    	this.mOut = out;
     }
 
     /**
@@ -68,12 +62,8 @@ public final class Lz77FPGAOutputStream
         if (closed) {
             throw new IOException("Stream is closed");
         }
-        if(inputLength + 1 > MAX_INPUT_SIZE) {
-    	  System.err.println("FPGA input size exceeds MAX_INPUT_SIZE(" + MAX_INPUT_SIZE + ").\n");
-	      System.exit(1);
-        }
         
-        compression_core.uint8_t_array_setitem(FPGAinput, inputLength++, (byte) b);
+        buffer.put((byte) b);
     }
 
     @Override
@@ -94,15 +84,7 @@ public final class Lz77FPGAOutputStream
             throw new IndexOutOfBoundsException();
         }
         
-        if(inputLength+length > MAX_INPUT_SIZE) {
-    	  System.err.println("FPGA input size exceeds MAX_INPUT_SIZE(" + MAX_INPUT_SIZE + ").\n");
-	      System.exit(1);
-        }
-        
-        for(int i = 0; i < length; i++) {
-        	compression_core.uint8_t_array_setitem(FPGAinput, inputLength++, input[offset+i]);
-        }
-
+        buffer.put(input, offset, length);
     }
 
     @Override
@@ -113,19 +95,10 @@ public final class Lz77FPGAOutputStream
             throw new ClosedChannelException();
         }
 
-        byte[] srcArray = src.array();
-        int srcOffset = src.position();
+        
         int srcLength = src.remaining();
         
-        if(inputLength+srcLength > MAX_INPUT_SIZE) {
-      	  System.err.println("FPGA input size exceeds MAX_INPUT_SIZE(" + MAX_INPUT_SIZE + ").\n");
-  	      System.exit(1);
-          }
-        
-        for(int i = 0; i < srcLength; i++) {
-        	compression_core.uint8_t_array_setitem(FPGAinput, inputLength++, srcArray[srcOffset+i]);
-        }
-
+        buffer.put(src);
         return srcLength;
     }
 
@@ -149,7 +122,7 @@ public final class Lz77FPGAOutputStream
         
         try {
             flush();
-            outChannel.close();
+            mOut.close();
         }
         finally {
             closed = true;
@@ -165,17 +138,18 @@ public final class Lz77FPGAOutputStream
     private void flushBuffer()
             throws IOException
     {
-        if (inputLength > 0) {
-            writeCompressed();
-            inputLength = 0;
+        if (buffer.position() > 0) {
+        	buffer.flip();
+            writeCompressed(buffer);
+            buffer.clear();
         }
     }
 
-    private void writeCompressed()
+    private void writeCompressed(ByteBuffer rawBuffer)
             throws IOException
     {
-    	
-    	//Lz77FPGA.compress2(FPGAinput, inputLength, outChannel);
-    	
+    	byte[] backingArray = rawBuffer.array();
+    	int length = rawBuffer.remaining();
+    	int compressedSize = Lz77FPGA.FPGACompress(backingArray, length, mOut);
     }   
 }
