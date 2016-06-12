@@ -4,9 +4,12 @@ public class Clock {
 	
     long timeMark = -1;
     
+    public Clock() {
+    	timeMark = System.currentTimeMillis();
+	}
+    
     void start() {
     	timeMark = System.currentTimeMillis();
-    	
     }
     
     String elapsedTimeInSeconds(String action){
