@@ -98,6 +98,13 @@ public class SparkAligner {
 		}
 		System.out.println(Clock.elapsedTimeInSeconds("Read 2GB into Java"));
 		
+		byte arrayInJava2[] = new byte[ARRAY_SIZE];
+		System.out.println(Clock.elapsedTimeInSeconds("Alloc another array of 2GB size in Java"));
+		for(int i = 0; i < ARRAY_SIZE; i++) {
+			arrayInJava2[i] = arrayInJava[i];
+		}
+		System.out.println(Clock.elapsedTimeInSeconds("Transmit 2GB within Java"));
+		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
 		
