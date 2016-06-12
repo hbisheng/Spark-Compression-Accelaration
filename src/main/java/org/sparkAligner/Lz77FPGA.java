@@ -62,8 +62,11 @@ public class Lz77FPGA {
 		
 		int compressedSize = compression_core.Lz77CompressOverall(backingArray, input_bytes_len, dfe_id);
 		System.out.println(t.elapsedTimeInSeconds("Compress Overall Time"));
+		System.out.println(String.format("Compression ratio: %.3f", 1.0*input_bytes_len / compressedSize ));
 		
 		FPGAController.releaseFPGAGrant(dfe_id);
+		
+		
 		mOut.write(backingArray, 0, compressedSize);
 	}
 
