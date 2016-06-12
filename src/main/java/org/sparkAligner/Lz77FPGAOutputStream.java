@@ -174,10 +174,8 @@ public final class Lz77FPGAOutputStream
     private void writeCompressed()
             throws IOException
     {
-    	int i = FPGAController.getFPGAGrant();
     	
-    	Lz77FPGA.compress(FPGAinput, inputLength, outChannel);
+    	Lz77FPGA.compress2(FPGAinput, inputLength, outChannel);
     	
-    	FPGAController.releaseFPGAGrant(i);
     }   
 }

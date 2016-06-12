@@ -3,7 +3,7 @@ package org.sparkAligner;
 public class FPGAController {
 	
 	
-	static final int FPGA_NUM = 1;
+	static final int FPGA_NUM = 2;
 	static boolean available[] = new boolean[FPGA_NUM];
 	static Object mutex = new Object();
 		
@@ -17,6 +17,7 @@ public class FPGAController {
 				for(int i = 0; i < FPGA_NUM; i++) {
 					if(available[i] == true) {
 						available[i] = false;
+						System.out.println("Get dfe: " + i);
 						return i;
 					}
 				}
