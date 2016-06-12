@@ -83,6 +83,19 @@ public class SparkAligner {
 		
 		Clock.start();
 		int ARRAY_SIZE = 2047 * 1024 * 1024;
+		byte arrayInJava[] = new byte[ARRAY_SIZE];
+		for(int i = 0; i < ARRAY_SIZE; i++) {
+			arrayInJava[i] = 0;
+		}
+		
+		compression_core.testfunc1(arrayInJava);
+		for(int i = 0; i < 40; i++) {
+			System.out.println(arrayInJava[i]);
+		}
+		
+		/*
+		Clock.start();
+		int ARRAY_SIZE = 2047 * 1024 * 1024;
 		SWIGTYPE_p_unsigned_char arrayInC = compression_core.new_uint8_t_array(ARRAY_SIZE);
 		System.out.println(Clock.elapsedTimeInSeconds("Alloc an array of 2GB size in C"));
 		
@@ -104,6 +117,8 @@ public class SparkAligner {
 			arrayInJava2[i] = arrayInJava[i];
 		}
 		System.out.println(Clock.elapsedTimeInSeconds("Transmit 2GB within Java"));
+		*/
+		
 		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
