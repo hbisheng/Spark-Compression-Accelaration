@@ -32,6 +32,7 @@ import scala.Tuple2;
 
 
 
+
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -143,7 +144,9 @@ public class SparkAligner {
        	
         
 		System.out.println("----------------Total Elapsed time: " + (System.currentTimeMillis()-startTime)/1000.0 + " seconds.\n");
-        context.stop();
+        
+		compression_core.unloadFPGAs(FPGAController.FPGA_NUM);
+		context.stop();
         context.close();
     }
 }
