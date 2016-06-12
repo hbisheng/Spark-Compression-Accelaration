@@ -90,7 +90,7 @@ public class SparkAligner {
 		}
 		System.out.println(Clock.elapsedTimeInSeconds("Initialized to 0"));
 		
-		compression_core.Lz77CompressOverall(arrayInJava, ARRAY_SIZE, 0);
+		compression_core.Lz77CompressOverall(arrayInJava, ARRAY_SIZE/384*384, 0);
 		System.out.println(Clock.elapsedTimeInSeconds("Performed Compression"));
 		
 		for(int i = 0; i < 40; i++) {
