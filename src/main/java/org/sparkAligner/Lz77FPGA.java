@@ -7,17 +7,6 @@ import java.nio.channels.WritableByteChannel;
 
 public class Lz77FPGA {
     
-    static {
-        try {
-        System.loadLibrary("compression_core");
-        compression_core.loadFPGAs(FPGAController.FPGA_NUM);
-        
-        } catch (UnsatisfiedLinkError e) {
-          System.err.println("Native code library failed to load. See the chapter on Dynamic Linking Problems in the SWIG Java documentation for help.\n" + e);
-          System.exit(1);
-        }
-    }
-    
     static long timeStart = -1;
     static long timeMark = -1;
     static String elapsedTimeInSeconds(){

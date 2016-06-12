@@ -33,6 +33,7 @@ import scala.Tuple2;
 
 
 
+
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -60,7 +61,9 @@ public class SparkAligner {
                     Class.forName("org.apache.hadoop.io.BytesWritable")
                 }
             ); 
-        //conf.set("spark.hadoop.io.compression.codecs", "org.sparkAligner.TmpGzipCodec");
+        
+        System.loadLibrary("compression_core");
+        compression_core.loadFPGAs(FPGAController.FPGA_NUM);
         
         String outputPath = args[2];
         int readPartition = 12;	
