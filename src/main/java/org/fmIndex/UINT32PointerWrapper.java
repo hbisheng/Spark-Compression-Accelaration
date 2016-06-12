@@ -15,7 +15,7 @@ public class UINT32PointerWrapper {
 		backingArray = indexContent;
 		bb = ByteBuffer.wrap(backingArray);
 		bb.order(ByteOrder.LITTLE_ENDIAN);
-		System.out.println("Sai size in bytes: " + backingArray.length);
+		//System.out.println("Sai size in bytes: " + backingArray.length);
 	}
 	
 	public boolean IsLoaded(){

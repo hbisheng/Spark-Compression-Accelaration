@@ -21,7 +21,7 @@ public class CommonUtils {
 			Path path = Paths.get(filePath);
 			try {
 				data = Files.readAllBytes(path);
-				System.out.println("Read data length:" + data.length);
+				//System.out.println("Read data length:" + data.length);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
