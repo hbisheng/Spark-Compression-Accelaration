@@ -63,7 +63,7 @@ public class SparkAligner {
         
         String outputPath = args[2];
         int readPartition = 12;	
-		int writePartition = 1;	
+		int writePartition = 4;	
 		
 		/*
         IndexPointerWrapper idx = new IndexPointerWrapper(CommonUtils.readFile(args[0] + ".idx"));
@@ -81,16 +81,17 @@ public class SparkAligner {
         Function<String, String> easyFunc = new Function<String, String>() {
 			@Override
 			public String call(String arg0) throws Exception {		
-				return arg0 + " hello";
+				return arg0;
 			}
 		};
 		
 		 
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.sparkAligner.Lz77FPGACodec.class);
+		
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.SnappyCodec.class);
-		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
-		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
+		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.Lz4Codec.class);
+		lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.GzipCodec.class);
 		//lines1.map(easyFunc).coalesce(writePartition).saveAsTextFile(outputPath, org.apache.hadoop.io.compress.BZip2Codec.class);
 		
        /* 
